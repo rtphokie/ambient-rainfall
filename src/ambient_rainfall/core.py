@@ -4,7 +4,7 @@ import time
 from datetime import datetime, timedelta
 from pprint import pprint
 
-from utils import api, _get_default_device, _looks_like_mac_address, _ensure_utc_datetime
+from ambient_rainfall.utils import api, _get_default_device, _looks_like_mac_address, _ensure_utc_datetime
 
 from ambient_api.ambientapi import AmbientWeatherStation
 
@@ -85,7 +85,7 @@ def get_total_rainfall_for_date_range(device: str = None,
     return total_rainfall
 
 
-if __name__ == "__main__":
+def cli():
     parser = argparse.ArgumentParser(description="Calculate total rainfall for a date range.")
     parser.add_argument("--start", dest="start_datetime", type=datetime.fromisoformat,
                         help="Start datetime, ISO format (e.g. 2026-07-22 or 2026-07-22T08:00:00). "
@@ -93,6 +93,9 @@ if __name__ == "__main__":
     parser.add_argument("--end", dest="end_datetime", type=datetime.fromisoformat,
                         help="End datetime, ISO format (e.g. 2026-07-23 or 2026-07-23T08:00:00). "
                              "Defaults to today at 8am.")
+    parser.add_argument("--device", dest="device", default=None,
+                        help="MAC address of the weather station to query. "
+                             "Defaults to the first station found on the account.")
     args = parser.parse_args()
 
     today_at_8am = datetime.now().replace(hour=8, minute=0, second=0, microsecond=0)
@@ -100,5 +103,9 @@ if __name__ == "__main__":
     start_datetime = args.start_datetime or (today_at_8am - timedelta(days=1))
 
     print(f"Calculating total rainfall between {start_datetime} and {end_datetime}...")
-    rainfall = get_total_rainfall_for_date_range(start_datetime=start_datetime, end_datetime=end_datetime)
+    rainfall = get_total_rainfall_for_date_range(device=args.device, start_datetime=start_datetime, end_datetime=end_datetime)
     print(f"Total rainfall between {start_datetime} and {end_datetime}: {rainfall:.2f} inches")
+
+
+if __name__ == "__main__":
+    cli()

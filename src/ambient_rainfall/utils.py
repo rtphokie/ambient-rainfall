@@ -20,7 +20,7 @@ api = AmbientAPI(
     application_key=os.environ["AMBIENT_APPLICATION_KEY"],
 )
 
-DEVICE_CACHE_DIR = Path(os.environ.get("AWNWRAPPER_CACHE_DIR", ".cache"))
+DEVICE_CACHE_DIR = Path(os.environ.get("AMBIENT_RAINFALL_CACHE_DIR", ".cache"))
 DEVICE_CACHE = Cache(DEVICE_CACHE_DIR)
 DEFAULT_DEVICE_CACHE_KEY = "default_device"
 DEVICE_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60  # 7 days
