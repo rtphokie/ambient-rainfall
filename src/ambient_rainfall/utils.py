@@ -1,17 +1,13 @@
 import os
-import time
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
-import tzlocal
 
+from ambient_api.ambientapi import AmbientAPI, AmbientWeatherStation
 from diskcache import Cache
-
 from dotenv import load_dotenv
 
 load_dotenv()
-
-from ambient_api.ambientapi import AmbientAPI, AmbientWeatherStation
 
 
 api = AmbientAPI(
@@ -26,14 +22,20 @@ DEFAULT_DEVICE_CACHE_KEY = "default_device"
 DEVICE_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60  # 7 days
 
 
+def _default_hour_from_env() -> int:
+    """Return the AMBIENT_HOUR environment variable as an int, defaulting to 0."""
+    return int(os.environ.get("AMBIENT_HOUR", 0))
+
+
+DEFAULT_HOUR = _default_hour_from_env()
+
+
 def _to_aware_datetime(value: datetime, timezone_name: str | None = None) -> datetime:
     """Return the supplied datetime as an aware datetime in the requested timezone."""
     if value.tzinfo is not None and value.utcoffset() is not None:
         return value
 
     if timezone_name is None:
-        local_tz_name = tzlocal.get_localzone_name()
-
         local_dt = datetime.now().astimezone()
         timezone_info = local_dt.tzinfo
     else:
@@ -42,7 +44,9 @@ def _to_aware_datetime(value: datetime, timezone_name: str | None = None) -> dat
     return value.replace(tzinfo=timezone_info)
 
 
-def _ensure_aware_datetime(value: datetime, timezone_name: str | None = None) -> datetime:
+def _ensure_aware_datetime(
+    value: datetime, timezone_name: str | None = None
+) -> datetime:
     """Ensure the supplied datetime is timezone-aware, attaching local tz if needed."""
     if value.tzinfo is None or value.utcoffset() is None:
         return _to_aware_datetime(value, timezone_name=timezone_name)
@@ -89,5 +93,3 @@ def _get_default_device():
     device = devices[0]
     _cache_device(device)
     return device
-
-

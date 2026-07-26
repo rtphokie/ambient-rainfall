@@ -27,6 +27,7 @@ ambient-rainfall = "ambient_rainfall.core:cli"
 dev = [
     "pytest>=8.0",
     "ruff>=0.16.0",
+    "tzdata>=2025.2",
 ]
 
 [build-system]

@@ -40,6 +40,9 @@ AMBIENT_APPLICATION_KEY=your-application-key
 Optionally set `AMBIENT_RAINFALL_CACHE_DIR` to control where the default-device
 cache is stored (defaults to `.cache` in the project root).
 
+Optionally set `AMBIENT_HOUR` to control the hour (0-23) used for the
+start/end datetime defaults described below (defaults to `0`).
+
 ## Usage
 
 Installing the package exposes a console script:
@@ -49,8 +52,12 @@ ambient-rainfall --start 2026-07-22T08:00:00 --end 2026-07-23T08:00:00
 ```
 
 `--start` and `--end` accept ISO-formatted datetimes (e.g. `2026-07-22` or
-`2026-07-22T08:00:00`). If omitted, `--end` defaults to today at 8am and
-`--start` defaults to yesterday at 8am.
+`2026-07-22T08:00:00`). If omitted, `--end` defaults to today and `--start`
+defaults to yesterday, both at the hour set by `--hour` (or the `AMBIENT_HOUR`
+environment variable, or `0` if neither is set). If `--start`/`--end` are
+given but omit a time component (e.g. `2026-07-22`), that same hour is filled
+in; an explicit time in the string (e.g. `2026-07-22T08:00:00`) is always
+kept as-is.
 
 Each run prints the total rainfall for the requested range and writes a CSV
 (`rainfall_<start>_<end>.csv`) with the hourly rainfall values used in the
