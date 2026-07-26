@@ -8,7 +8,11 @@ authors = [{ name = "Tony Rice", email = "rtphokie@gmail.com" }]
 license = "MIT"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
 ]
 dependencies = [
     "ambient-api>=1.5.7",
@@ -18,7 +22,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/<you>/ambient-rainfall"
+Repository = "https://github.com/rtphokie/ambient-rainfall"
 
 [project.scripts]
 ambient-rainfall = "ambient_rainfall.core:cli"
