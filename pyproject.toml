@@ -1,6 +1,6 @@
 [project]
 name = "ambient-rainfall"
-version = "0.1.0"
+version = "0.1.1"
 description = "A wrapper around the Ambient Weather API for pulling historical station data and calculating rainfall totals over a date range."
 readme = "README.md"
 requires-python = ">=3.11"
