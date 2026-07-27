@@ -1,23 +1,25 @@
+#!/usr/bin/env python3
 import argparse
 import time
 from datetime import datetime, timedelta
 
+from ambient_api.ambientapi import AmbientWeatherStation
+from pprint import pprint
+
 from ambient_rainfall.utils import (
-    api,
     DEFAULT_HOUR,
+    _ensure_utc_datetime,
     _get_default_device,
     _looks_like_mac_address,
-    _ensure_utc_datetime,
+    api,
 )
-
-from ambient_api.ambientapi import AmbientWeatherStation
 
 
 def get_data_for_date_range(
-    device: str = None,
-    start_datetime: datetime = None,
-    end_datetime: datetime = None,
-    timezone_name: str = None,
+    device: str | None = None,
+    start_datetime: datetime | None = None,
+    end_datetime: datetime | None = None,
+    timezone_name: str | None = None,
     round_start_hour_down: bool = True,
 ) -> dict:
     if start_datetime is None or end_datetime is None:
@@ -54,12 +56,12 @@ def get_data_for_date_range(
 
 
 def get_total_rainfall_for_date_range(
-    device: str = None,
-    start_datetime: datetime = None,
-    end_datetime: datetime = None,
-    timezone_name: str = None,
+    device: str | None = None,
+    start_datetime: datetime | None = None,
+    end_datetime: datetime | None = None,
+    timezone_name: str | None = None,
     round_start_hour_down: bool = True,
-    csv_path: str = None,
+    csv_path: str | None = None,
 ) -> float:
     """Return the sum of hourlyrainin values for the requested date range."""
     data, start_datetime, end_datetime = get_data_for_date_range(
@@ -71,6 +73,9 @@ def get_total_rainfall_for_date_range(
     )
 
     records = data if isinstance(data, list) else data.get("data", [])
+    print(len(records), "records found for the date range")
+    # if records is None or len(records) == 0:
+        # raise ValueError("No data records found for the specified date range.")
     total_rainfall = 0.0
 
     if csv_path is None:
@@ -86,6 +91,10 @@ def get_total_rainfall_for_date_range(
         hourly_rainfall_records[hour_str] = hourly_rain
         total_rainfall = sum(hourly_rainfall_records.values())
 
+
+    open (csv_path, "w").write("hour,rainfall_in\n")
+    for hour_str, rainfall in sorted(hourly_rainfall_records.items()):
+        open (csv_path, "a").write(f"{hour_str},{rainfall}\n")
     return total_rainfall
 
 
@@ -134,7 +143,9 @@ def cli():
     )
     args = parser.parse_args()
 
-    today_at_hour = datetime.now().replace(
+    # Naive local wall-clock time; get_data_for_date_range attaches the local
+    # tz (or timezone_name) before converting to UTC.
+    today_at_hour = datetime.now().replace(  # noqa: DTZ005
         hour=args.hour, minute=0, second=0, microsecond=0
     )
     end_datetime = (

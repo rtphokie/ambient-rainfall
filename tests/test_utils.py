@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -53,7 +53,7 @@ class TestLooksLikeMacAddress:
 
 class TestToAwareDatetime:
     def test_returns_aware_value_unchanged(self):
-        aware = datetime(2026, 7, 22, 8, tzinfo=timezone.utc)
+        aware = datetime(2026, 7, 22, 8, tzinfo=UTC)
         assert utils._to_aware_datetime(aware) is aware
 
     def test_attaches_explicit_timezone(self):
@@ -65,7 +65,7 @@ class TestToAwareDatetime:
 
 class TestEnsureAwareDatetime:
     def test_passes_through_aware_value(self):
-        aware = datetime(2026, 7, 22, 8, tzinfo=timezone.utc)
+        aware = datetime(2026, 7, 22, 8, tzinfo=UTC)
         assert utils._ensure_aware_datetime(aware) is aware
 
     def test_attaches_tz_to_naive_value(self):
@@ -145,7 +145,7 @@ class TestGetDefaultDevice:
         assert second.mac_address == "AA:BB:CC:DD:EE:FF"
 
     def test_raises_when_no_devices_found(self, monkeypatch):
-        monkeypatch.setattr(utils.api, "get_devices", lambda: [])
+        monkeypatch.setattr(utils.api, "get_devices", list)
 
         with pytest.raises(ValueError, match="No devices found"):
             utils._get_default_device()

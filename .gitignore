@@ -15,3 +15,7 @@ uv.lock
 
 # secrets and local configurations
 .env
+
+# data
+**.csv
+c*.py

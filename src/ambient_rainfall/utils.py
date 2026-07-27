@@ -1,20 +1,25 @@
 import os
+from pprint import pprint
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
+import time
+
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 
 from ambient_api.ambientapi import AmbientAPI, AmbientWeatherStation
 from diskcache import Cache
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 api = AmbientAPI(
     ambient_endpoint="https://ambientweather.net",
     api_key=os.environ["AMBIENT_API_KEY"],
     application_key=os.environ["AMBIENT_APPLICATION_KEY"],
 )
+
+# print(os.environ.get("AMBIENT_API_KEY"))
+# print(os.environ.get("AMBIENT_APPLICATION_KEY"))
 
 DEVICE_CACHE_DIR = Path(os.environ.get("AMBIENT_RAINFALL_CACHE_DIR", ".cache"))
 DEVICE_CACHE = Cache(DEVICE_CACHE_DIR)
@@ -24,7 +29,7 @@ DEVICE_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60  # 7 days
 
 def _default_hour_from_env() -> int:
     """Return the AMBIENT_HOUR environment variable as an int, defaulting to 0."""
-    return int(os.environ.get("AMBIENT_HOUR", 0))
+    return int(os.environ.get("AMBIENT_HOUR", "0"))
 
 
 DEFAULT_HOUR = _default_hour_from_env()
@@ -86,8 +91,10 @@ def _get_default_device():
         return AmbientWeatherStation(api, cached_device_data)
 
     # most users will only have one device, so we can just grab the first one
+    time.sleep(1)  # avoid hitting the API too quickly
     devices = api.get_devices()
-    if not devices:
+    pprint(devices)
+    if not devices or len(devices) == 0:
         raise ValueError("No devices found for the user.")
 
     device = devices[0]

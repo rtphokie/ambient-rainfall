@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -42,7 +42,7 @@ class TestGetDataForDateRange:
             )
 
     def test_start_must_precede_end(self):
-        same = datetime(2026, 7, 22, 8, tzinfo=timezone.utc)
+        same = datetime(2026, 7, 22, 8, tzinfo=UTC)
         with pytest.raises(ValueError):
             core.get_data_for_date_range(start_datetime=same, end_datetime=same)
 
@@ -50,16 +50,16 @@ class TestGetDataForDateRange:
         with pytest.raises(TypeError):
             core.get_data_for_date_range(
                 device=12345,
-                start_datetime=datetime(2026, 7, 22, tzinfo=timezone.utc),
-                end_datetime=datetime(2026, 7, 23, tzinfo=timezone.utc),
+                start_datetime=datetime(2026, 7, 22, tzinfo=UTC),
+                end_datetime=datetime(2026, 7, 23, tzinfo=UTC),
             )
 
     def test_device_must_look_like_mac_address(self):
         with pytest.raises(ValueError):
             core.get_data_for_date_range(
                 device="not-a-mac",
-                start_datetime=datetime(2026, 7, 22, tzinfo=timezone.utc),
-                end_datetime=datetime(2026, 7, 23, tzinfo=timezone.utc),
+                start_datetime=datetime(2026, 7, 22, tzinfo=UTC),
+                end_datetime=datetime(2026, 7, 23, tzinfo=UTC),
             )
 
     def test_uses_default_device_when_none_given(self, monkeypatch):
@@ -67,8 +67,8 @@ class TestGetDataForDateRange:
         monkeypatch.setattr(core, "_get_default_device", lambda: fake_device)
 
         data, start, end = core.get_data_for_date_range(
-            start_datetime=datetime(2026, 7, 22, 8, 30, tzinfo=timezone.utc),
-            end_datetime=datetime(2026, 7, 23, 8, tzinfo=timezone.utc),
+            start_datetime=datetime(2026, 7, 22, 8, 30, tzinfo=UTC),
+            end_datetime=datetime(2026, 7, 23, 8, tzinfo=UTC),
         )
 
         assert data == [{"foo": "bar"}]
@@ -80,8 +80,8 @@ class TestGetDataForDateRange:
         monkeypatch.setattr(core, "_get_default_device", lambda: fake_device)
 
         _, start, _ = core.get_data_for_date_range(
-            start_datetime=datetime(2026, 7, 22, 8, 30, tzinfo=timezone.utc),
-            end_datetime=datetime(2026, 7, 23, 8, tzinfo=timezone.utc),
+            start_datetime=datetime(2026, 7, 22, 8, 30, tzinfo=UTC),
+            end_datetime=datetime(2026, 7, 23, 8, tzinfo=UTC),
             round_start_hour_down=False,
         )
 
@@ -92,9 +92,9 @@ class TestGetDataForDateRange:
         monkeypatch.setattr(core, "_get_default_device", lambda: fake_device)
 
         core.get_data_for_date_range(
-            start_datetime=datetime(2026, 7, 22, 8, tzinfo=timezone.utc),
+            start_datetime=datetime(2026, 7, 22, 8, tzinfo=UTC),
             end_datetime=datetime(
-                2026, 7, 22, 9, tzinfo=timezone.utc
+                2026, 7, 22, 9, tzinfo=UTC
             ),  # 1 hour == 12 intervals
         )
 
@@ -108,8 +108,8 @@ class TestGetDataForDateRange:
 
         data, _, _ = core.get_data_for_date_range(
             device="F8:B3:B7:86:72:98",
-            start_datetime=datetime(2026, 7, 22, 8, tzinfo=timezone.utc),
-            end_datetime=datetime(2026, 7, 23, 8, tzinfo=timezone.utc),
+            start_datetime=datetime(2026, 7, 22, 8, tzinfo=UTC),
+            end_datetime=datetime(2026, 7, 23, 8, tzinfo=UTC),
         )
 
         assert data == [{"foo": "bar"}]
@@ -117,8 +117,8 @@ class TestGetDataForDateRange:
 
 class TestGetTotalRainfallForDateRange:
     def _patch_data(self, monkeypatch, records, is_dict=False):
-        start = datetime(2026, 7, 22, 8, tzinfo=timezone.utc)
-        end = datetime(2026, 7, 23, 8, tzinfo=timezone.utc)
+        start = datetime(2026, 7, 22, 8, tzinfo=UTC)
+        end = datetime(2026, 7, 23, 8, tzinfo=UTC)
         payload = {"data": records} if is_dict else records
         monkeypatch.setattr(
             core,
@@ -137,8 +137,8 @@ class TestGetTotalRainfallForDateRange:
         self._patch_data(monkeypatch, records)
 
         total = core.get_total_rainfall_for_date_range(
-            start_datetime=datetime(2026, 7, 22, 8, tzinfo=timezone.utc),
-            end_datetime=datetime(2026, 7, 23, 8, tzinfo=timezone.utc),
+            start_datetime=datetime(2026, 7, 22, 8, tzinfo=UTC),
+            end_datetime=datetime(2026, 7, 23, 8, tzinfo=UTC),
         )
 
         assert total == pytest.approx(0.20)
@@ -148,8 +148,8 @@ class TestGetTotalRainfallForDateRange:
         self._patch_data(monkeypatch, records, is_dict=True)
 
         total = core.get_total_rainfall_for_date_range(
-            start_datetime=datetime(2026, 7, 22, 8, tzinfo=timezone.utc),
-            end_datetime=datetime(2026, 7, 23, 8, tzinfo=timezone.utc),
+            start_datetime=datetime(2026, 7, 22, 8, tzinfo=UTC),
+            end_datetime=datetime(2026, 7, 23, 8, tzinfo=UTC),
         )
 
         assert total == pytest.approx(0.30)
@@ -158,8 +158,8 @@ class TestGetTotalRainfallForDateRange:
         self._patch_data(monkeypatch, [])
 
         total = core.get_total_rainfall_for_date_range(
-            start_datetime=datetime(2026, 7, 22, 8, tzinfo=timezone.utc),
-            end_datetime=datetime(2026, 7, 23, 8, tzinfo=timezone.utc),
+            start_datetime=datetime(2026, 7, 22, 8, tzinfo=UTC),
+            end_datetime=datetime(2026, 7, 23, 8, tzinfo=UTC),
         )
 
         assert total == 0.0
