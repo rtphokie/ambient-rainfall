@@ -7,19 +7,33 @@ import time
 
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
+_ENV_PATH = Path(__file__).resolve().parent.parent.parent / ".env"
+load_dotenv(_ENV_PATH)
 
 from ambient_api.ambientapi import AmbientAPI, AmbientWeatherStation
 from diskcache import Cache
 
+
+def _require_env(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(
+            f"Missing required environment variable {name}.\n"
+            f"Add it to {_ENV_PATH} (creating the file if needed), e.g.:\n"
+            f"  {name}=your-{name.lower().replace('_', '-')}-here\n"
+            "Get your API key and application key from your account at "
+            "https://ambientweather.net (Settings > API Keys)."
+        )
+    return value
+
+
+_require_env("AMBIENT_API_KEY"),
+_require_env("AMBIENT_APPLICATION_KEY"),
 api = AmbientAPI(
     ambient_endpoint="https://ambientweather.net",
-    api_key=os.environ["AMBIENT_API_KEY"],
-    application_key=os.environ["AMBIENT_APPLICATION_KEY"],
+    api_key=_require_env("AMBIENT_API_KEY"),
+    application_key=_require_env("AMBIENT_APPLICATION_KEY"),
 )
-
-# print(os.environ.get("AMBIENT_API_KEY"))
-# print(os.environ.get("AMBIENT_APPLICATION_KEY"))
 
 DEVICE_CACHE_DIR = Path(os.environ.get("AMBIENT_RAINFALL_CACHE_DIR", ".cache"))
 DEVICE_CACHE = Cache(DEVICE_CACHE_DIR)
